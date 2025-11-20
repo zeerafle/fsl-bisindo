@@ -5,6 +5,35 @@
 			"url": "http://localhost:6280/sse",
 			"disabled": false,
 			"autoApprove": []
+		},
+		"googleImagesSearch": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@srigi/mcp-google-images-search"
+			],
+			"env": {
+				"API_KEY": "${input:google-api-key}",
+				"SEARCH_ENGINE_ID": "${input:google-pse-id}"
+			},
+			"autoApprove": [
+				"search_image",
+				"persist_image"
+			]
 		}
-	}
+	},
+	"inputs": [
+		{
+			"type": "promptString",
+			"id": "google-api-key",
+			"description": "Google API Key",
+			"password": true
+		},
+		{
+			"type": "promptString",
+			"id": "google-pse-id",
+			"description": "Google Programmable Search Engine ID",
+			"password": true
+		},
+	]
 }
