@@ -96,6 +96,8 @@ For sign language, it's different:
 BISINDO is currently **under-resourced**.
 
 ---
+layout: two-cols
+---
 
 # Existing Sign Language Datasets
 
@@ -105,12 +107,16 @@ Well-studied sign languages:
 - **TID** – AUTSL dataset with RGB, depth, skeleton
 - **BSL** – BOBSL dataset with large-scale TV data
 
+::right::
+
 Indonesia:
 
 - **SIBI** dataset (Indonesian Sign System) – letters, numbers, affixes, sentences
 - **WL-BISINDO** dataset – 32 isolated signs, RGB videos from 5 signers
 
 But: **BISINDO still lacks large, diverse datasets** for hundreds of words.
+
+![](./public/images/sample_data.jpg)
 
 ---
 
@@ -163,6 +169,8 @@ One popular method: **Prototypical Networks**.
 # Pose-Based Sign Recognition
 
 Instead of using raw RGB video, many recent works use **pose keypoints**:
+
+<img src="./public/images/rgb_to_pose.png" class="h-32 mx-auto" />
 
 - 2D/3D locations of **body, hands, face joints** over time
 - Obtained from models like OpenPose, MediaPipe, etc.
