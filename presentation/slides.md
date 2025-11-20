@@ -116,7 +116,7 @@ Indonesia:
 
 But: **BISINDO still lacks large, diverse datasets** for hundreds of words.
 
-![](./public/images/sample_data.jpg)
+![](/images/sample_data.jpg)
 
 ---
 
@@ -170,7 +170,7 @@ One popular method: **Prototypical Networks**.
 
 Instead of using raw RGB video, many recent works use **pose keypoints**:
 
-<img src="./public/images/rgb_to_pose.png" class="h-32 mx-auto" />
+<img src="/images/rgb_to_pose.png" class="h-32 mx-auto" />
 
 - 2D/3D locations of **body, hands, face joints** over time
 - Obtained from models like OpenPose, MediaPipe, etc.
@@ -273,9 +273,7 @@ flowchart LR
    - Does pretraining on **other sign languages** (ASL, TID, etc.) help
      **BISINDO few-shot recognition**?
 
----
-
-# Expected Contributions
+<!-- # Expected Contributions
 
 - A **pose-based BISINDO recognition pipeline** using SL-GCN
 - A **few-shot BISINDO benchmark** (N-way, K-shot tasks)
@@ -285,7 +283,7 @@ flowchart LR
 Potential impact:
 
 - Step toward **scalable BISINDO vocabularies** (hundreds+ words)
-- Foundation for future **continuous BISINDO recognition**
+- Foundation for future **continuous BISINDO recognition** -->
 
 ---
 
