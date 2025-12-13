@@ -1,0 +1,12 @@
+[project]
+name = "fsl-bisindo"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "easyfsl>=1.5.0",
+    "ipykernel>=7.1.0",
+    "lightning>=2.6.0",
+    "openhands>=1.5.0",
+]
