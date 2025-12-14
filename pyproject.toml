@@ -3,10 +3,15 @@ name = "fsl-bisindo"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
     "easyfsl>=1.5.0",
     "ipykernel>=7.1.0",
+    "joblib>=1.5.2",
     "lightning>=2.6.0",
-    "openhands>=1.5.0",
+    "mediapipe>=0.10.14",
+    "natsort>=8.4.0",
+    "omegaconf>=2.3.0",
+    "opencv-python>=4.12.0.88",
+    "openhands>=0.0.0",
 ]
