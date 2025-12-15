@@ -10,8 +10,9 @@ dependencies = [
     "joblib>=1.5.2",
     "mediapipe>=0.10.14",
     "natsort>=8.4.0",
-    "numpy>=2.2.6",
+    "numpy<2",
     "omegaconf>=2.3.0",
-    "opencv-python>=4.12.0.88",
+    "opencv-python>=4.11",
     "openhands-sl>=0.1.11",
+    "torch>=2.0.1",
 ]

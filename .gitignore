@@ -2,3 +2,4 @@ __pycache__
 data/
 scripts/mediapipe_extract.py
 checkpoints
+.venv
