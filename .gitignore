@@ -1,3 +1,4 @@
 __pycache__
-data/keypoints/
+data/
 scripts/mediapipe_extract.py
+checkpoints
