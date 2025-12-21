@@ -3,3 +3,4 @@ data/
 scripts/mediapipe_extract.py
 checkpoints
 .venv
+.env

@@ -9,11 +9,13 @@ dependencies = [
     "imageio>=2.37.2",
     "ipykernel>=7.1.0",
     "joblib>=1.5.2",
+    "kagglehub>=0.3.13",
     "mediapipe>=0.10.14",
     "natsort>=8.4.0",
     "numpy<2",
     "omegaconf>=2.3.0",
     "opencv-python>=4.11",
     "openhands-sl>=0.1.11",
+    "python-dotenv>=1.2.1",
     "torch>=2.0.1",
 ]
