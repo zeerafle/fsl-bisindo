@@ -34,3 +34,11 @@ Few-shot learning implementation for sign language recognition on WL-BISINDO dat
 
    The video files will be available at `./data/WL-BISINDO/rgb` and the extracted keypoints will be at `./data/WL-BISINDO/keypoints`.
 
+6. Download pretrained weights for the backbones.
+
+   ```bash
+   uv run tools/download_weights.py
+   ```
+
+   It automatically modifies the config files that comes with the weights to point to the correct dataset path and some adjustment for running feature extraction. The modified config files are saved in `./configs/backbones/`.
+
