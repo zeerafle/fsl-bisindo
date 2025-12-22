@@ -55,7 +55,7 @@ uv run tools/extract_features.py \
   --wandb_group feature_extraction_v1
 
 uv run tools/extract_features.py \
-  --backbone_cfg configs/backbones/wlasl_slgcn.yaml \
+  --backbone_cfg configs/backbones/csl_slgcn.yaml \
   --data_cfg configs/data/wlbisindo_keypoints.yaml \
   --out_dir data/features \
   --wandb_project wl-bisindo-fsl \

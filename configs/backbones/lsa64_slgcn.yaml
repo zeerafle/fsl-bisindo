@@ -7,6 +7,7 @@ data:
       root_dir: ./data/LSA64/lsa64/pose_all_cut
       splits: train
       modality: pose
+      only_metadata: true
     transforms:
     - PoseSelect:
         preset: mediapipe_holistic_minimal_27
@@ -31,6 +32,7 @@ data:
       root_dir: ./data/LSA64/lsa64/pose_all_cut
       splits: test
       modality: pose
+      only_metadata: true
     transforms:
     - PoseSelect:
         preset: mediapipe_holistic_minimal_27
@@ -51,6 +53,7 @@ data:
       root_dir: ./data/LSA64/lsa64/pose_all_cut
       splits: test
       modality: pose
+      only_metadata: true
     transforms:
     - PoseSelect:
         preset: mediapipe_holistic_minimal_27

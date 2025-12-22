@@ -7,6 +7,7 @@ data:
       root_dir: ./data/AUTSL/poses_pickle/train_poses/new_train_poses
       modality: pose
       class_mappings_file_path: ./data/AUTSL/AUTSL/SignList_ClassId_TR_EN.csv
+      only_metadata: true
     transforms:
     - PoseSelect:
         preset: mediapipe_holistic_minimal_27
@@ -30,6 +31,7 @@ data:
       root_dir: ./data/AUTSL/poses_pickle/test_poses/new_test_poses
       modality: pose
       class_mappings_file_path: ./data/AUTSL/AUTSL/SignList_ClassId_TR_EN.csv
+      only_metadata: true
     transforms:
     - PoseSelect:
         preset: mediapipe_holistic_minimal_27
@@ -49,6 +51,7 @@ data:
       root_dir: ./data/AUTSL/poses_pickle/test_poses/new_test_poses
       modality: pose
       class_mappings_file_path: ./data/AUTSL/AUTSL/SignList_ClassId_TR_EN.csv
+      only_metadata: true
     transforms:
     - PoseSelect:
         preset: mediapipe_holistic_minimal_27

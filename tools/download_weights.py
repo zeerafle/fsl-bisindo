@@ -62,22 +62,6 @@ for dataset, url in WEIGHTS_URL.items():
         os.makedirs(test_pose_dir, exist_ok=True)
 
         # update config paths
-        config.data.train_pipeline.dataset.split_file = (
-            f"{metadata_dir}/AUTSL/train_labels.csv"
-        )
-        config.data.train_pipeline.dataset.root_dir = train_pose_dir
-        config.data.train_pipeline.dataset.class_mappings_file_path = (
-            f"{metadata_dir}/AUTSL/SignList_ClassId_TR_EN.csv"
-        )
-
-        config.data.valid_pipeline.dataset.split_file = (
-            f"{metadata_dir}/AUTSL/test_labels.csv"
-        )
-        config.data.valid_pipeline.dataset.root_dir = test_pose_dir
-        config.data.valid_pipeline.dataset.class_mappings_file_path = (
-            f"{metadata_dir}/AUTSL/SignList_ClassId_TR_EN.csv"
-        )
-
         config.data.test_pipeline.dataset.split_file = (
             f"{metadata_dir}/AUTSL/test_labels.csv"
         )
@@ -92,16 +76,6 @@ for dataset, url in WEIGHTS_URL.items():
         os.makedirs(pose_dir, exist_ok=True)
 
         # update config paths
-        config.data.train_pipeline.dataset.class_mappings_file_path = (
-            f"{metadata_dir}/lsa64/lsa64_signs.md"
-        )
-        config.data.train_pipeline.dataset.root_dir = pose_dir
-
-        config.data.valid_pipeline.dataset.class_mappings_file_path = (
-            f"{metadata_dir}/lsa64/lsa64_signs.md"
-        )
-        config.data.valid_pipeline.dataset.root_dir = pose_dir
-
         config.data.test_pipeline.dataset.class_mappings_file_path = (
             f"{metadata_dir}/lsa64/lsa64_signs.md"
         )
@@ -113,20 +87,22 @@ for dataset, url in WEIGHTS_URL.items():
         os.makedirs(pose_dir, exist_ok=True)
 
         # update config paths
-        config.data.train_pipeline.dataset.split_file = (
-            f"{metadata_dir}/CSL/word/gloss_label.txt"
-        )
-        config.data.train_pipeline.dataset.root_dir = pose_dir
 
-        config.data.valid_pipeline.dataset.split_file = (
-            f"{metadata_dir}/CSL/word/gloss_label.txt"
-        )
-        config.data.valid_pipeline.dataset.root_dir = pose_dir
+        # download the split.test.csv file from openhands repo
+        split_url = "https://raw.githubusercontent.com/AI4Bharat/OpenHands/main/openhands/datasets/assets/csl_metadata/split.test.csv"
+        split_output_path = f"{metadata_dir}/split.test.csv"
+        urlretrieve(split_url, split_output_path)
 
-        config.data.test_pipeline.dataset.split_file = (
-            f"{metadata_dir}/CSL/word/gloss_label.txt"
+        config.data.test_pipeline.dataset.split_file = split_output_path
+        config.data.test_pipeline.dataset.class_mappings_file_path = (
+            f"{metadata_dir}/CSL/gloss_label.txt"
         )
         config.data.test_pipeline.dataset.root_dir = pose_dir
+
+    # enable only_metadata mode for all pipelines
+    config.data.train_pipeline.dataset.only_metadata = True
+    config.data.valid_pipeline.dataset.only_metadata = True
+    config.data.test_pipeline.dataset.only_metadata = True
 
     # add name key
     config.name = f"{dataset.lower()}_slgcn"
