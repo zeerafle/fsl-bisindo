@@ -3,10 +3,10 @@ data:
   train_pipeline:
     dataset:
       _target_: openhands.datasets.isolated.AUTSLDataset
-      split_file: ./data/AUTSL/AUTSL/train_labels.csv
-      root_dir: ./data/AUTSL/poses_pickle/train_poses/new_train_poses
+      split_file: /home/prem/data-disk/datasets/AUTSL/train_labels.csv
+      root_dir: /home/prem/data-disk/datasets/AUTSL/poses_pickle/train_poses/new_train_poses
       modality: pose
-      class_mappings_file_path: ./data/AUTSL/AUTSL/SignList_ClassId_TR_EN.csv
+      class_mappings_file_path: /home/prem/data-disk/datasets/AUTSL/SignList_ClassId_TR_EN.csv
       only_metadata: true
     transforms:
     - PoseSelect:
@@ -27,10 +27,10 @@ data:
   valid_pipeline:
     dataset:
       _target_: openhands.datasets.isolated.AUTSLDataset
-      split_file: ./data/AUTSL/AUTSL/test_labels.csv
-      root_dir: ./data/AUTSL/poses_pickle/test_poses/new_test_poses
+      split_file: /home/prem/data-disk/datasets/AUTSL/test_labels.csv
+      root_dir: /home/prem/data-disk/datasets/AUTSL/poses_pickle/test_poses/new_test_poses/
       modality: pose
-      class_mappings_file_path: ./data/AUTSL/AUTSL/SignList_ClassId_TR_EN.csv
+      class_mappings_file_path: /home/prem/data-disk/datasets/AUTSL/SignList_ClassId_TR_EN.csv
       only_metadata: true
     transforms:
     - PoseSelect:

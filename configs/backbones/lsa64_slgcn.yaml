@@ -3,8 +3,8 @@ data:
   train_pipeline:
     dataset:
       _target_: openhands.datasets.isolated.LSA64Dataset
-      class_mappings_file_path: ./data/LSA64/lsa64/lsa64_signs.md
-      root_dir: ./data/LSA64/lsa64/pose_all_cut
+      class_mappings_file_path: /home/gokulnc/data-disk/datasets/Argentinian/lsa64_signs.md
+      root_dir: /home/gokulnc/data-disk/datasets/Argentinian/lsa64/pose_all_cut/
       splits: train
       modality: pose
       only_metadata: true
@@ -28,8 +28,8 @@ data:
   valid_pipeline:
     dataset:
       _target_: openhands.datasets.isolated.LSA64Dataset
-      class_mappings_file_path: ./data/LSA64/lsa64/lsa64_signs.md
-      root_dir: ./data/LSA64/lsa64/pose_all_cut
+      class_mappings_file_path: /home/gokulnc/data-disk/datasets/Argentinian/lsa64_signs.md
+      root_dir: /home/gokulnc/data-disk/datasets/Argentinian/lsa64/pose_all_cut/
       splits: test
       modality: pose
       only_metadata: true
@@ -49,8 +49,8 @@ data:
   test_pipeline:
     dataset:
       _target_: openhands.datasets.isolated.LSA64Dataset
-      class_mappings_file_path: ./data/LSA64/lsa64/lsa64_signs.md
-      root_dir: ./data/LSA64/lsa64/pose_all_cut
+      class_mappings_file_path: ./data/LSA64/LSA64_Cut/lsa64_signs.es.md
+      root_dir: ./data/LSA64/lsa64/pose_all_cut/
       splits: test
       modality: pose
       only_metadata: true

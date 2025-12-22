@@ -1,12 +1,12 @@
 import json
 import multiprocessing
 import os
-import urllib
+import urllib.request
 
-import mediapipe as mp
 import mediapipe_extract
 import numpy as np
 from joblib import Parallel, delayed
+from mediapipe.python.solutions.holistic import Holistic
 from tqdm import tqdm
 
 METADATA_URL = "https://raw.githubusercontent.com/AceKinnn/WL-BISINDO/refs/heads/main/data_structuring/SI_split_metadata.json"
@@ -26,7 +26,7 @@ def process_video(video_info):
         return
 
     try:
-        holistic = mp.solutions.holistic.Holistic(
+        holistic = Holistic(
             static_image_mode=False, model_complexity=2
         )
 

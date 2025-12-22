@@ -72,12 +72,18 @@ for dataset, url in WEIGHTS_URL.items():
 
     elif dataset == "LSA64":
         # create dummy directory
-        pose_dir = f"{metadata_dir}/lsa64/pose_all_cut"
+        pose_dir = f"{metadata_dir}/lsa64/pose_all_cut/"
         os.makedirs(pose_dir, exist_ok=True)
+
+        # download es version of lsa64_signs.md from openhands repo
+        # because the original metadata somehow break the code
+        signs_url = "https://raw.githubusercontent.com/AI4Bharat/OpenHands/refs/heads/main/openhands/datasets/assets/lsa64_metadata/LSA64_Cut/lsa64_signs.es.md"
+        signs_output_path = f"{metadata_dir}/LSA64_Cut/lsa64_signs.es.md"
+        urlretrieve(signs_url, signs_output_path)
 
         # update config paths
         config.data.test_pipeline.dataset.class_mappings_file_path = (
-            f"{metadata_dir}/lsa64/lsa64_signs.md"
+            f"{metadata_dir}/LSA64_Cut/lsa64_signs.es.md"
         )
         config.data.test_pipeline.dataset.root_dir = pose_dir
 
@@ -86,13 +92,12 @@ for dataset, url in WEIGHTS_URL.items():
         pose_dir = f"{metadata_dir}/CSL/word/pose_mediapipe"
         os.makedirs(pose_dir, exist_ok=True)
 
-        # update config paths
-
         # download the split.test.csv file from openhands repo
         split_url = "https://raw.githubusercontent.com/AI4Bharat/OpenHands/main/openhands/datasets/assets/csl_metadata/split.test.csv"
         split_output_path = f"{metadata_dir}/split.test.csv"
         urlretrieve(split_url, split_output_path)
 
+        # update config paths
         config.data.test_pipeline.dataset.split_file = split_output_path
         config.data.test_pipeline.dataset.class_mappings_file_path = (
             f"{metadata_dir}/CSL/gloss_label.txt"
