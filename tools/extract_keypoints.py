@@ -1,12 +1,13 @@
-import mediapipe_extract
-import urllib
-import os
 import json
-from tqdm import tqdm
-from joblib import Parallel, delayed
 import multiprocessing
+import os
+import urllib
+
 import mediapipe as mp
+import mediapipe_extract
 import numpy as np
+from joblib import Parallel, delayed
+from tqdm import tqdm
 
 METADATA_URL = "https://raw.githubusercontent.com/AceKinnn/WL-BISINDO/refs/heads/main/data_structuring/SI_split_metadata.json"
 

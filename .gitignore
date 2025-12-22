@@ -1,6 +1,21 @@
 __pycache__
-data/
-scripts/mediapipe_extract.py
-checkpoints
+data/*
+
+# re-include the data parent and the WL-BISINDO dir
+!data/
+!data/WL-BISINDO/
+
+# ignore everything inside these subdirs
+data/WL-BISINDO/rgb/*
+data/WL-BISINDO/keypoints/*
+
+# re-include only the .gitkeep placeholder files
+!data/WL-BISINDO/rgb/.gitkeep
+!data/WL-BISINDO/keypoints/.gitkeep
+
+checkpoints/*
+!checkpoints/.gitkeep
+
 .venv
 .env
+wandb
