@@ -1,0 +1,45 @@
+# configs/data/wlbisindo_keypoints.yaml
+
+name: wlbisindo_keypoints
+version: v1
+
+paths:
+  keypoints_root: "data/WL-BISINDO/keypoints" # where signer*_label*_sample*.npy live
+  # Optional: local copy of the metadata JSON that maps video_id -> label/split/gloss
+  metadata_json: "data/WL-BISINDO/SI_split_metadata.json"
+
+# If you want to load metadata from remote and cache locally, you can add:
+remote_metadata:
+  url: "https://raw.githubusercontent.com/AceKinnn/WL-BISINDO/refs/heads/main/data_structuring/SI_split_metadata.json"
+  cache_path: "data/WL-BISINDO/SI_split_metadata.json"
+
+# How to interpret filenames and labels
+filename_scheme:
+  pattern: "signer{signer}_label{label}_sample{sample}"
+  signer_field: "signer"
+  label_field: "label"
+  sample_field: "sample"
+
+labels:
+  # If you have a fixed number of WL-BISINDO classes
+  num_classes: 32
+
+splits:
+  # How to get per-sample split info during extraction
+  source: "metadata_json" # "metadata_json" | "none"
+  field: "split" # in metadata: base / val / novel / train / test, etc.
+
+# Preprocessing options for Dataset/transform (lightweight data info only)
+preprocess:
+  # Whether to apply your PoseSelect + CenterAndScaleNormalize inside transform
+  apply_pose_select: true
+  pose_preset: "mediapipe_holistic_minimal_27"
+  normalize: true
+  normalize_preset: "shoulder_mediapipe_holistic_minimal_27"
+
+loader:
+  # Default DataLoader hyperparams (can be overridden by CLI)
+  batch_size: 32
+  num_workers: 4
+  pin_memory: true
+  shuffle: false

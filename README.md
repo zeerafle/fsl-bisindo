@@ -42,3 +42,29 @@ Few-shot learning implementation for sign language recognition on WL-BISINDO dat
 
    It automatically modifies the config files that comes with the weights to point to the correct dataset path and some adjustment for running feature extraction. The modified config files are saved in `./configs/backbones/`.
 
+## Feature Extraction
+
+Run the following commands to extract features using different pretrained backbones. Make sure to adjust parameters as needed.
+
+```
+uv run tools/extract_features.py \
+  --backbone_cfg configs/backbones/autsl_slgcn.yaml \
+  --data_cfg configs/data/wlbisindo_keypoints.yaml \
+  --out_dir data/features \
+  --wandb_project wl-bisindo-fsl \
+  --wandb_group feature_extraction_v1
+
+uv run tools/extract_features.py \
+  --backbone_cfg configs/backbones/wlasl_slgcn.yaml \
+  --data_cfg configs/data/wlbisindo_keypoints.yaml \
+  --out_dir data/features \
+  --wandb_project wl-bisindo-fsl \
+  --wandb_group feature_extraction_v1
+
+uv run tools/extract_features.py \
+  --backbone_cfg configs/backbones/devisign_slgcn.yaml \
+  --data_cfg configs/data/wlbisindo_keypoints.yaml \
+  --out_dir data/features \
+  --wandb_project wl-bisindo-fsl \
+  --wandb_group feature_extraction_v1
+```
