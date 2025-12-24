@@ -27,6 +27,15 @@ def build_backbone_from_cfg(
     """
     Build a backbone (or encoder) using a backbone config.
     If return_encoder=True, returns model.encoder (the feature extractor).
+
+    Args:
+        backbone_cfg: Configuration dict with model architecture and checkpoint path
+        device: Device to load model on
+        return_encoder: If True, return only the encoder; else return full model
+        freeze: If True, freeze all parameters and set to eval mode
+
+    Returns:
+        The encoder or full model module
     """
     family = str(_get(backbone_cfg, "model.encoder.type", default="decoupled-gcn"))
 
@@ -42,8 +51,13 @@ def build_backbone_from_cfg(
     if freeze:
         for p in model.parameters():
             p.requires_grad = False
+        model.eval()
+    else:
+        # When not frozen, ensure all parameters are trainable
+        for p in model.parameters():
+            p.requires_grad = True
+        model.train()
 
-    model.eval()
     return model
 
 
@@ -87,11 +101,11 @@ def _build_openhands_slgcn(
                 "Could not find encoder on loaded OpenHands model (expected `.model.encoder`)."
             )
         enc = enc.to(device)
-        enc.eval()
+        # Don't set eval() here - let the caller control train/eval mode
         return enc
 
     core = core.to(device)
-    core.eval()
+    # Don't set eval() here - let the caller control train/eval mode
     return core
 
 

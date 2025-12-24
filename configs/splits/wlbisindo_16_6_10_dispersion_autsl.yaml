@@ -1,0 +1,29 @@
+name: "wlbisindo_16_6_10_dispersion_autsl"
+scheme: "16-6-10"
+split_id: "disp_autsl_seed0"
+
+description: >
+  WL-BISINDO class split into 16 base, 6 validation, and 10 test (novel) classes.
+  Classes ranked by (count, mean_dist_to_centroid) using features from AUTSL-pretrained SL-GCN;
+  richer classes assigned to base, scarcer to val/test.
+
+num_classes: 32
+
+base_classes: [27, 31, 17, 8, 24, 25, 2, 26, 28, 0, 23, 29, 30, 14, 15, 7]
+val_classes: [19, 20, 6, 4, 10, 1]
+test_classes: [21, 22, 11, 13, 3, 12, 9, 18, 5, 16]
+
+# Optional: record the heuristic parameters
+selection_heuristic:
+  encoder: "slgcn_autsl"
+  features_file: "data/features/slgcn_features_autsl_style.pt"
+  dispersion:
+    metric: "mean_dist_to_centroid"
+    stats:
+      base: "min/med/max=8.2757/9.0996/10.2135"
+      val: "min/med/max=5.0583/6.0044/6.5031"
+      test: "min/med/max=6.5663/7.5152/8.0597"
+  min_samples_per_class: N_SHOT + N_QUERY # fill with actual numeric value
+  ranking:
+    base: "sort by (count desc, dispersion desc)"
+    val_test: "remaining sorted by (count asc, dispersion asc)"

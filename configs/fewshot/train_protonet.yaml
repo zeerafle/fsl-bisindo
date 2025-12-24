@@ -1,0 +1,73 @@
+# configs/fewshot/train_protonet.yaml
+# Main configuration for few-shot ProtoNet training on WL-BISINDO
+
+name: protonet_bisindo
+
+# Encoder configuration
+# Use existing backbone configs from configs/backbones/:
+#   - configs/backbones/autsl_slgcn.yaml (AUTSL pretrained)
+#   - configs/backbones/csl_slgcn.yaml (CSL pretrained)
+#   - configs/backbones/lsa64_slgcn.yaml (LSA64 pretrained)
+encoder:
+  backbone_cfg: configs/backbones/autsl_slgcn.yaml
+
+# ProtoNet head configuration
+protonet:
+  distance: euclidean # or "cosine"
+  temperature: 1.0 # only used for cosine distance
+  freeze_encoder: true # set false to fine-tune encoder
+
+# Few-shot episode configuration
+fewshot:
+  n_way: 5 # number of classes per episode
+  k_shot: 5 # support samples per class
+  n_query: 10 # query samples per class
+
+# Data configuration
+data:
+  keypoints_root: data/WL-BISINDO/keypoints
+  window_size: 64 # temporal window for padding/truncation
+
+# Split configuration - which classes for train/val/test
+split:
+  base_classes: [27, 31, 17, 8, 24, 25, 2, 26, 28, 0, 23, 29, 30, 14, 15, 7]
+  val_classes: [19, 20, 6, 4, 10, 1]
+  test_classes: [21, 22, 11, 13, 3, 12, 9, 18, 5, 16]
+
+# Training configuration
+training:
+  n_train_episodes: 1000 # episodes per epoch
+  n_val_episodes: 100
+  n_test_episodes: 600
+  n_epochs: 100
+  eval_interval: 5
+  early_stopping_patience: 20
+  seed: 42
+
+# Optimizer configuration
+optim:
+  name: Adam
+  lr: 0.001
+  weight_decay: 0.0
+
+# Scheduler configuration
+scheduler:
+  name: CosineAnnealingLR
+  T_max: 100
+
+# Hardware
+device: cuda
+
+# Checkpointing
+checkpoint:
+  save_dir: experiments/protonet
+  save_best: true
+
+# Weights & Biases logging
+wandb:
+  project: fsl-bisindo
+  entity: null # your wandb entity
+  group: protonet
+  job_type: train
+  tags: ["protonet", "fewshot", "bisindo"]
+  mode: online # online, offline, or disabled

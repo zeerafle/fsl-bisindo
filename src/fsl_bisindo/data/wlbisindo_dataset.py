@@ -153,3 +153,45 @@ class WLBisindoKeypointsDataset(Dataset):
             "path": item.path,
             "sample_id": torch.tensor(item.sample_id, dtype=torch.long),
         }
+
+    def get_labels(self) -> list[int]:
+        """
+        Return the list of labels for all items.
+
+        Required by easyfsl's TaskSampler for few-shot episode sampling.
+        """
+        return [item.label for item in self.items]
+
+
+class WLBisindoFewShotDataset(Dataset):
+    """
+    Wrapper for WLBisindoKeypointsDataset that makes it compatible with easyfsl.
+
+    easyfsl's TaskSampler expects __getitem__ to return Tuple[Tensor, int].
+    This wrapper converts the dict output to the expected format.
+
+    Args:
+        base_dataset: The underlying WLBisindoKeypointsDataset
+    """
+
+    def __init__(self, base_dataset: WLBisindoKeypointsDataset) -> None:
+        self.base_dataset = base_dataset
+
+    def __len__(self) -> int:
+        return len(self.base_dataset)
+
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
+        """Return (frames, label) tuple expected by easyfsl."""
+        item = self.base_dataset[idx]
+        frames = item["frames"]  # Tensor [C, T, V] or [T, V, C]
+        label = item["label"].item()  # int
+        return frames, label
+
+    def get_labels(self) -> list[int]:
+        """Forward to base dataset's get_labels()."""
+        return self.base_dataset.get_labels()
+
+    @property
+    def items(self):
+        """Forward items access for compatibility."""
+        return self.base_dataset.items

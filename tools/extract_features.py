@@ -14,11 +14,6 @@ from fsl_bisindo.models.load_pretrained import build_backbone_from_cfg
 from fsl_bisindo.utils.wandb_utils import log_artifact, wandb_init
 
 
-def load_yaml(path: str) -> DictConfig | ListConfig:
-    """Load YAML config using OmegaConf."""
-    return OmegaConf.load(path)
-
-
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--backbone_cfg", type=str, required=True)
@@ -167,8 +162,8 @@ if __name__ == "__main__":
 
     load_dotenv()  # load W&B API key from .env
     args = parse_args()
-    backbone_cfg = load_yaml(args.backbone_cfg)  # type: ignore
-    data_cfg = load_yaml(args.data_cfg)  # type: ignore
+    backbone_cfg = OmegaConf.load(args.backbone_cfg)  # type: ignore
+    data_cfg = OmegaConf.load(args.data_cfg)  # type: ignore
     # split_cfg = load_yaml(args.split_cfg)  # type: ignore
 
     out_dir = Path(args.out_dir)
