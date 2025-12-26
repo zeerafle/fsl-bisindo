@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Few-shot learning training script for ProtoNet on WL-BISINDO.
 
@@ -343,7 +342,7 @@ def build_optimizer_and_scheduler(
 
     # Optimizer
     optim_name = optim_cfg.get("name", "Adam")
-    lr = optim_cfg.get("lr", 0.001)
+    lr = optim_cfg.get("lr", 0.0001)
     weight_decay = optim_cfg.get("weight_decay", 0.0)
 
     # Get trainable parameters
@@ -359,6 +358,8 @@ def build_optimizer_and_scheduler(
     elif optim_name == "SGD":
         momentum = optim_cfg.get("momentum", 0.9)
         optimizer = SGD(params, lr=lr, weight_decay=weight_decay, momentum=momentum)
+    elif optim_name == "AdamW":
+        optimizer = torch.optim.AdamW(params, lr=lr, weight_decay=weight_decay)
     else:
         raise ValueError(f"Unsupported optimizer: {optim_name}")
 
@@ -589,6 +590,7 @@ def main():
     checkpoint_cfg = cfg.get("checkpoint", {})
     n_epochs = train_cfg.get("n_epochs", 100)
     eval_interval = train_cfg.get("eval_interval", 5)
+    early_stopping_patience = train_cfg.get("early_stopping_patience", None)
     save_dir = checkpoint_cfg.get("save_dir")
 
     if save_dir:
@@ -598,9 +600,12 @@ def main():
     # Training loop
     print("\n" + "=" * 60)
     print("Starting training...")
+    if early_stopping_patience:
+        print(f"Early stopping enabled with patience={early_stopping_patience}")
     print("=" * 60)
 
     best_val_acc = 0.0
+    epochs_without_improvement = 0
     history = {"train_loss": [], "train_acc": [], "val_loss": [], "val_acc": []}
 
     for epoch in range(1, n_epochs + 1):
@@ -645,9 +650,20 @@ def main():
             # Save best model
             if val_metrics["mean_accuracy"] > best_val_acc:
                 best_val_acc = val_metrics["mean_accuracy"]
+                epochs_without_improvement = 0
                 if save_dir:
                     torch.save(model.state_dict(), save_dir / "best_model.pt")
                     print(f"  Saved best model (val_acc={best_val_acc:.4f})")
+            else:
+                epochs_without_improvement += 1
+                if (
+                    early_stopping_patience
+                    and epochs_without_improvement >= early_stopping_patience
+                ):
+                    print(
+                        f"\nEarly stopping triggered after {epochs_without_improvement} evaluations without improvement"
+                    )
+                    break
 
     history["best_val_acc"] = best_val_acc
 

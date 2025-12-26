@@ -26,7 +26,7 @@ fewshot:
 # Data configuration
 data:
   keypoints_root: data/WL-BISINDO/keypoints
-  window_size: 64 # temporal window for padding/truncation
+  window_size: 204 # temporal window for padding/truncation
 
 # Split configuration - which classes for train/val/test
 split:
@@ -40,14 +40,14 @@ training:
   n_val_episodes: 100
   n_test_episodes: 600
   n_epochs: 100
-  eval_interval: 5
-  early_stopping_patience: 20
+  eval_interval: 1
+  early_stopping_patience: 15
   seed: 42
 
 # Optimizer configuration
 optim:
-  name: Adam
-  lr: 0.001
+  name: AdamW
+  lr: 0.0001
   weight_decay: 0.0
 
 # Scheduler configuration
@@ -65,7 +65,7 @@ checkpoint:
 
 # Weights & Biases logging
 wandb:
-  project: fsl-bisindo
+  project: wl-bisindo-fsl
   entity: null # your wandb entity
   group: protonet
   job_type: train

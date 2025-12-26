@@ -19,3 +19,4 @@ checkpoints/*
 .venv
 .env
 wandb
+experiments

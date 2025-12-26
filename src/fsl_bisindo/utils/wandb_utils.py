@@ -61,7 +61,8 @@ def wandb_init(
 
     # If you run multiple runs in one Python process (e.g., run_matrix),
     # reinit prevents overwriting/merging surprises.
-    init_kwargs.setdefault("reinit", True)
+    # Use "finish_previous" to finish all active runs before starting a new one.
+    init_kwargs.setdefault("reinit", "finish_previous")
 
     run = wandb.init(**init_kwargs)
     return run

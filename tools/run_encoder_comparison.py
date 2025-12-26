@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Run few-shot experiments with multiple encoders for comparison.
 
@@ -11,6 +10,10 @@ Usage:
     # With specific encoders:
     python tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.yaml \
         --encoders autsl csl
+
+    # Fine tuning mode (unfreeze encoder):
+    python tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.yaml \
+        --unfreeze_encoder --lr 0.0001
 
     # Quick test:
     python tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.yaml \
@@ -59,6 +62,19 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--seed", type=int, default=42, help="Random seed")
 
+    # Add fine-tuning support
+    p.add_argument(
+        "--unfreeze_encoder",
+        action="store_true",
+        help="Unfreeze encoder for fine-tuning (applies to all encoders)",
+    )
+    p.add_argument(
+        "--lr",
+        type=float,
+        default=None,
+        help="Override learning rate (recommended when unfreezing encoder)",
+    )
+
     p.add_argument("--device", type=str, default="cuda", help="Device")
     p.add_argument(
         "--save_dir",
@@ -79,6 +95,7 @@ def run_single_experiment(
     save_dir: Path,
     overrides: dict[str, Any],
     use_wandb: bool = True,
+    unfreeze_encoder: bool = False,
 ) -> dict[str, Any]:
     """Run a single experiment with specified encoder."""
     import subprocess
@@ -102,11 +119,16 @@ def run_single_experiment(
         cmd.extend(["--seed", str(overrides["seed"])])
     if overrides.get("device"):
         cmd.extend(["--device", overrides["device"]])
+    if overrides.get("lr"):
+        cmd.extend(["--lr", str(overrides["lr"])])
+    if unfreeze_encoder:
+        cmd.append("--unfreeze_encoder")
     if not use_wandb:
         cmd.append("--no_wandb")
 
     print(f"\n{'=' * 60}")
     print(f"Running experiment: {encoder_name}")
+    print(f"Mode: {'Fine-tuning' if unfreeze_encoder else 'Frozen encoder'}")
     print(f"Command: {' '.join(cmd)}")
     print(f"{'=' * 60}\n")
 
@@ -116,6 +138,7 @@ def run_single_experiment(
     return {
         "encoder": encoder_name,
         "encoder_cfg": encoder_cfg_path,
+        "unfreeze_encoder": unfreeze_encoder,
         "return_code": result.returncode,
         "save_dir": str(save_dir / encoder_name),
     }
@@ -126,12 +149,20 @@ def main():
 
     # Setup output directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    save_dir = Path(args.save_dir) / timestamp
+    mode_suffix = "_finetuned" if args.unfreeze_encoder else "_frozen"
+    save_dir = Path(args.save_dir) / f"{timestamp}{mode_suffix}"
     save_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"Running encoder comparison experiment")
+    print(
+        f"Mode: {'Fine-tuning (encoder unfrozen)' if args.unfreeze_encoder else 'Frozen encoder'}"
+    )
     print(f"Encoders: {args.encoders}")
     print(f"Output directory: {save_dir}")
+
+    if args.unfreeze_encoder and args.lr is None:
+        print("\n⚠️  WARNING: Fine-tuning enabled but no learning rate specified.")
+        print("   Consider using --lr with a smaller value (e.g., 0.0001 or 0.00001)")
 
     # Collect overrides
     overrides: dict[str, Any] = {
@@ -140,6 +171,8 @@ def main():
     }
     if args.n_epochs is not None:
         overrides["n_epochs"] = args.n_epochs
+    if args.lr is not None:
+        overrides["lr"] = args.lr
 
     # Run experiments
     results = []
@@ -152,6 +185,7 @@ def main():
             save_dir=save_dir,
             overrides=overrides,
             use_wandb=not args.no_wandb,
+            unfreeze_encoder=args.unfreeze_encoder,
         )
         results.append(result)
 
@@ -160,6 +194,7 @@ def main():
         "timestamp": timestamp,
         "config": args.config,
         "encoders": args.encoders,
+        "unfreeze_encoder": args.unfreeze_encoder,
         "overrides": overrides,
         "results": results,
     }
