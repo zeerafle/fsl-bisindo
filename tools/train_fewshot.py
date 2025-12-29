@@ -31,17 +31,16 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from easyfsl.samplers import TaskSampler
-from omegaconf import OmegaConf
-from torch.optim import SGD, Adam
-from torch.optim.lr_scheduler import CosineAnnealingLR, StepLR
-from torch.utils.data import DataLoader
-from tqdm import tqdm
-
 from fsl_bisindo.data.wlbisindo_dataset import (
     WLBisindoFewShotDataset,
     WLBisindoKeypointsDataset,
 )
 from fsl_bisindo.models.protonet import SignLanguageProtoNet, build_protonet_from_cfg
+from omegaconf import OmegaConf
+from torch.optim import SGD, Adam
+from torch.optim.lr_scheduler import CosineAnnealingLR, StepLR
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 
 def parse_args() -> argparse.Namespace:
@@ -672,6 +671,13 @@ def main():
     print(f"Best validation accuracy: {best_val_acc:.4f}")
     print("=" * 60)
 
+    # Load best model for final evaluation
+    if save_dir and (save_dir / "best_model.pt").exists():
+        print("\nLoading best model weights for final evaluation...")
+        model.load_state_dict(
+            torch.load(save_dir / "best_model.pt", map_location=device)
+        )
+
     # Final evaluation on test set
     print("\nEvaluating on test set (novel classes)...")
     test_metrics = evaluate(model, test_loader, device, desc="Testing")
@@ -682,7 +688,7 @@ def main():
     )
     print(f"  Loss: {test_metrics['loss']:.4f}")
 
-    # Log final results
+    # Log final results and save model artifact
     if run:
         run.log(
             {
@@ -694,6 +700,35 @@ def main():
         run.summary["test_acc_mean"] = test_metrics["mean_accuracy"]
         run.summary["test_acc_ci"] = test_metrics["ci_95"]
         run.summary["best_val_acc"] = best_val_acc
+
+        # Upload best model as W&B artifact
+        if save_dir:
+            best_model_path = save_dir / "best_model.pt"
+            if best_model_path.exists():
+                from fsl_bisindo.utils.wandb_utils import log_artifact
+
+                try:
+                    artifact_info = log_artifact(
+                        run,
+                        save_dir / "best_model.pt",
+                        name="protonet-best",
+                        type="model",
+                        metadata={
+                            "best_val_acc": best_val_acc,
+                            "test_acc_mean": test_metrics["mean_accuracy"],
+                            "test_acc_ci": test_metrics["ci_95"],
+                            "encoder": cfg.get("encoder", {}).get("backbone_cfg"),
+                            "n_way": cfg.get("fewshot", {}).get("n_way"),
+                            "k_shot": cfg.get("fewshot", {}).get("k_shot"),
+                        },
+                        aliases=["best", "latest"],
+                    )
+                    print(f"  Artifact uploaded: {artifact_info.qualified}")
+                except Exception as e:
+                    print(f"Warning: failed to upload best model artifact to W&B: {e}")
+            else:
+                print("\nBest model file not found; skipping W&B artifact upload.")
+
         run.finish()
 
     return history, test_metrics

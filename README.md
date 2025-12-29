@@ -93,6 +93,10 @@ uv run tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.y
 # Quick test with reduced epochs
 uv run tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.yaml \
   --n_epochs 5 --no_wandb
+
+# Fine-tune all encoders
+uv run tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.yaml \
+  --unfreeze_encoder --lr 0.0001
 ```
 
 ### Configuration
