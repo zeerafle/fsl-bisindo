@@ -25,7 +25,13 @@ Few-shot learning implementation for sign language recognition on WL-BISINDO dat
 
 4. Set the `WLBISINDO_DATA_PATH` variable in the `.env` file to point to your WL-BISINDO dataset directory. Optionally, set your Weights & Biases API key in the `.env` file for experiment tracking.
 
-5. Download WL-BISINDO dataset and extract the keypoints.
+5. Download WL-BISINDO extracted keypoints from github release.
+
+   ```bash
+   uv run tools/download_release_keypoints.py
+   ```
+
+   Optionally, you can download the raw video files and extract the keypoints yourself by running:
 
    ```bash
    uv run tools/download_bisindo.py

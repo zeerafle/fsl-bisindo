@@ -9,12 +9,9 @@ The encoder can be frozen (default) or trainable for fine-tuning.
 
 from __future__ import annotations
 
-from typing import Any
-
 import torch
 import torch.nn as nn
 from easyfsl.methods import PrototypicalNetworks
-from omegaconf import DictConfig
 
 
 class SignLanguageProtoNet(PrototypicalNetworks):

@@ -84,7 +84,7 @@ def main() -> None:
     )
     p.add_argument(
         "--out-dir",
-        default="data/WL-BISINDO/keypoints",
+        default="data/WL-BISINDO/",
         help="Destination directory for extraction",
     )
     p.add_argument(
