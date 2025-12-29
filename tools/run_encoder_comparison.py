@@ -77,6 +77,12 @@ def parse_args() -> argparse.Namespace:
 
     p.add_argument("--device", type=str, default="cuda", help="Device")
     p.add_argument(
+        "--num_workers",
+        type=int,
+        default=4,
+        help="Number of DataLoader workers",
+    )
+    p.add_argument(
         "--save_dir",
         type=str,
         default="experiments/comparison",
@@ -119,6 +125,8 @@ def run_single_experiment(
         cmd.extend(["--seed", str(overrides["seed"])])
     if overrides.get("device"):
         cmd.extend(["--device", overrides["device"]])
+    if overrides.get("num_workers"):
+        cmd.extend(["--num_workers", str(overrides["num_workers"])])
     if overrides.get("lr"):
         cmd.extend(["--lr", str(overrides["lr"])])
     if unfreeze_encoder:
@@ -153,7 +161,7 @@ def main():
     save_dir = Path(args.save_dir) / f"{timestamp}{mode_suffix}"
     save_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"Running encoder comparison experiment")
+    print("Running encoder comparison experiment")
     print(
         f"Mode: {'Fine-tuning (encoder unfrozen)' if args.unfreeze_encoder else 'Frozen encoder'}"
     )
@@ -168,6 +176,7 @@ def main():
     overrides: dict[str, Any] = {
         "seed": args.seed,
         "device": args.device,
+        "num_workers": args.num_workers,
     }
     if args.n_epochs is not None:
         overrides["n_epochs"] = args.n_epochs

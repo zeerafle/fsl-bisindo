@@ -278,12 +278,21 @@ def build_datasets_and_loaders(
     )
 
     # Create DataLoaders with episodic_collate_fn
+
+    dataloader_config = {
+        "persistent_workers": True if num_workers > 0 else False,  # keep workers alive
+        "prefetch_factor": 2
+        if num_workers > 0
+        else None,  # prefetch 2 batches per worker
+    }
+
     train_loader = DataLoader(
         train_dataset,
         batch_sampler=train_sampler,
         num_workers=num_workers,
         pin_memory=True,
         collate_fn=train_sampler.episodic_collate_fn,
+        **dataloader_config,
     )
     val_loader = DataLoader(
         val_dataset,
@@ -291,6 +300,7 @@ def build_datasets_and_loaders(
         num_workers=num_workers,
         pin_memory=True,
         collate_fn=val_sampler.episodic_collate_fn,
+        **dataloader_config,
     )
     test_loader = DataLoader(
         test_dataset,
