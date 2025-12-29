@@ -20,3 +20,5 @@ checkpoints/*
 .env
 wandb
 experiments
+
+*.tar.gz
