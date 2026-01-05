@@ -6,3 +6,6 @@ library/API documentation. This means you should automatically use the Context7 
 tools to resolve library id and get library docs without me having to explicitly ask.
 Pay attention to the specific version of the library I am using (can be found in the pyproject.toml),
 and ensure that the documentation you provide matches that version.
+
+Exception for easy-fsl and openhands, it is not currently available in context7.
+So no need to use context7 for those two libraries.

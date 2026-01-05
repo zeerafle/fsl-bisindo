@@ -19,6 +19,14 @@ Usage:
     # Fine-tune encoder (unfreeze):
     python tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
         --unfreeze_encoder --lr 0.0001
+
+    # Evaluate frozen encoder baseline (zero-shot, no training):
+    python tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
+        --eval_only
+
+    # Evaluate different encoders as baseline:
+    python tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
+        --encoder configs/backbones/csl_slgcn.yaml --eval_only
 """
 
 from __future__ import annotations
@@ -31,16 +39,17 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from easyfsl.samplers import TaskSampler
-from fsl_bisindo.data.wlbisindo_dataset import (
-    WLBisindoFewShotDataset,
-    WLBisindoKeypointsDataset,
-)
-from fsl_bisindo.models.protonet import SignLanguageProtoNet, build_protonet_from_cfg
 from omegaconf import OmegaConf
 from torch.optim import SGD, Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR, StepLR
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+
+from fsl_bisindo.data.wlbisindo_dataset import (
+    WLBisindoFewShotDataset,
+    WLBisindoKeypointsDataset,
+)
+from fsl_bisindo.models.protonet import SignLanguageProtoNet, build_protonet_from_cfg
 
 
 def parse_args() -> argparse.Namespace:
@@ -95,6 +104,13 @@ def parse_args() -> argparse.Namespace:
         help="Override W&B mode",
     )
     p.add_argument("--no_wandb", action="store_true", help="Disable W&B logging")
+
+    # Evaluation only mode (for frozen encoder baseline)
+    p.add_argument(
+        "--eval_only",
+        action="store_true",
+        help="Skip training, only evaluate on test set (for frozen encoder baseline)",
+    )
 
     return p.parse_args()
 
@@ -591,9 +607,6 @@ def main():
     print(f"Val tasks: {len(val_loader)}")
     print(f"Test tasks: {len(test_loader)}")
 
-    # Build optimizer and scheduler
-    optimizer, scheduler = build_optimizer_and_scheduler(model, cfg)
-
     # Training config
     train_cfg = cfg.get("training", {})
     checkpoint_cfg = cfg.get("checkpoint", {})
@@ -605,6 +618,54 @@ def main():
     if save_dir:
         save_dir = Path(save_dir)
         save_dir.mkdir(parents=True, exist_ok=True)
+
+    # Evaluation-only mode (for frozen encoder baseline)
+    if args.eval_only:
+        print("\n" + "=" * 60)
+        print("Evaluation-only mode (frozen encoder baseline)")
+        print("Skipping training, directly evaluating on test set...")
+        print("=" * 60)
+
+        # Evaluate on test set
+        print("\nEvaluating on test set (novel classes)...")
+        test_metrics = evaluate(model, test_loader, device, desc="Testing")
+
+        print(f"\nTest Results ({test_metrics['n_episodes']} episodes):")
+        print(
+            f"  Mean accuracy: {test_metrics['mean_accuracy']:.4f} ± {test_metrics['ci_95']:.4f} (95% CI)"
+        )
+        print(f"  Loss: {test_metrics['loss']:.4f}")
+
+        # Also evaluate on val set for reference
+        print("\nEvaluating on validation set...")
+        val_metrics = evaluate(model, val_loader, device, desc="Validating")
+        print(f"\nValidation Results ({val_metrics['n_episodes']} episodes):")
+        print(
+            f"  Mean accuracy: {val_metrics['mean_accuracy']:.4f} ± {val_metrics['ci_95']:.4f} (95% CI)"
+        )
+
+        # Log to W&B
+        if run:
+            run.log(
+                {
+                    "test/loss": test_metrics["loss"],
+                    "test/accuracy": test_metrics["mean_accuracy"],
+                    "test/ci_95": test_metrics["ci_95"],
+                    "val/loss": val_metrics["loss"],
+                    "val/accuracy": val_metrics["mean_accuracy"],
+                    "val/ci_95": val_metrics["ci_95"],
+                }
+            )
+            run.summary["test_acc_mean"] = test_metrics["mean_accuracy"]
+            run.summary["test_acc_ci"] = test_metrics["ci_95"]
+            run.summary["val_acc_mean"] = val_metrics["mean_accuracy"]
+            run.summary["val_acc_ci"] = val_metrics["ci_95"]
+            run.finish()
+
+        return {"val": val_metrics, "test": test_metrics}
+
+    # Build optimizer and scheduler (only needed for training)
+    optimizer, scheduler = build_optimizer_and_scheduler(model, cfg)
 
     # Training loop
     print("\n" + "=" * 60)

@@ -14,7 +14,9 @@ Usage:
     # Fine tuning mode (unfreeze encoder):
     python tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.yaml \
         --unfreeze_encoder --lr 0.0001
-
+    # Baseline evaluation (frozen encoder, no training):
+    python tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.yaml \
+        --eval_only
     # Quick test:
     python tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.yaml \
         --n_epochs 5 --n_train_episodes 100
@@ -60,6 +62,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--n_train_episodes", type=int, default=None, help="Override train episodes"
     )
+    p.add_argument("--n_way", type=int, default=None, help="Override N-way")
+    p.add_argument("--k_shot", type=int, default=None, help="Override K-shot")
     p.add_argument("--seed", type=int, default=42, help="Random seed")
 
     # Add fine-tuning support
@@ -91,6 +95,13 @@ def parse_args() -> argparse.Namespace:
 
     p.add_argument("--no_wandb", action="store_true", help="Disable W&B logging")
 
+    # Evaluation only mode (for frozen encoder baseline)
+    p.add_argument(
+        "--eval_only",
+        action="store_true",
+        help="Skip training, only evaluate on test set (for frozen encoder baseline)",
+    )
+
     return p.parse_args()
 
 
@@ -102,6 +113,7 @@ def run_single_experiment(
     overrides: dict[str, Any],
     use_wandb: bool = True,
     unfreeze_encoder: bool = False,
+    eval_only: bool = False,
 ) -> dict[str, Any]:
     """Run a single experiment with specified encoder."""
     import subprocess
@@ -129,14 +141,28 @@ def run_single_experiment(
         cmd.extend(["--num_workers", str(overrides["num_workers"])])
     if overrides.get("lr"):
         cmd.extend(["--lr", str(overrides["lr"])])
+    if overrides.get("n_way"):
+        cmd.extend(["--n_way", str(overrides["n_way"])])
+    if overrides.get("k_shot"):
+        cmd.extend(["--k_shot", str(overrides["k_shot"])])
     if unfreeze_encoder:
         cmd.append("--unfreeze_encoder")
+    if eval_only:
+        cmd.append("--eval_only")
     if not use_wandb:
         cmd.append("--no_wandb")
 
+    # Determine mode string
+    if eval_only:
+        mode = "Eval only (baseline)"
+    elif unfreeze_encoder:
+        mode = "Fine-tuning"
+    else:
+        mode = "Frozen encoder (training)"
+
     print(f"\n{'=' * 60}")
     print(f"Running experiment: {encoder_name}")
-    print(f"Mode: {'Fine-tuning' if unfreeze_encoder else 'Frozen encoder'}")
+    print(f"Mode: {mode}")
     print(f"Command: {' '.join(cmd)}")
     print(f"{'=' * 60}\n")
 
@@ -147,6 +173,7 @@ def run_single_experiment(
         "encoder": encoder_name,
         "encoder_cfg": encoder_cfg_path,
         "unfreeze_encoder": unfreeze_encoder,
+        "eval_only": eval_only,
         "return_code": result.returncode,
         "save_dir": str(save_dir / encoder_name),
     }
@@ -157,14 +184,25 @@ def main():
 
     # Setup output directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    mode_suffix = "_finetuned" if args.unfreeze_encoder else "_frozen"
+    if args.eval_only:
+        mode_suffix = "_eval_baseline"
+    elif args.unfreeze_encoder:
+        mode_suffix = "_finetuned"
+    else:
+        mode_suffix = "_frozen"
     save_dir = Path(args.save_dir) / f"{timestamp}{mode_suffix}"
     save_dir.mkdir(parents=True, exist_ok=True)
 
+    # Determine mode string for display
+    if args.eval_only:
+        mode_str = "Eval only (frozen encoder baseline, no training)"
+    elif args.unfreeze_encoder:
+        mode_str = "Fine-tuning (encoder unfrozen)"
+    else:
+        mode_str = "Frozen encoder (with training loop)"
+
     print("Running encoder comparison experiment")
-    print(
-        f"Mode: {'Fine-tuning (encoder unfrozen)' if args.unfreeze_encoder else 'Frozen encoder'}"
-    )
+    print(f"Mode: {mode_str}")
     print(f"Encoders: {args.encoders}")
     print(f"Output directory: {save_dir}")
 
@@ -182,6 +220,10 @@ def main():
         overrides["n_epochs"] = args.n_epochs
     if args.lr is not None:
         overrides["lr"] = args.lr
+    if args.n_way is not None:
+        overrides["n_way"] = args.n_way
+    if args.k_shot is not None:
+        overrides["k_shot"] = args.k_shot
 
     # Run experiments
     results = []
@@ -195,6 +237,7 @@ def main():
             overrides=overrides,
             use_wandb=not args.no_wandb,
             unfreeze_encoder=args.unfreeze_encoder,
+            eval_only=args.eval_only,
         )
         results.append(result)
 
@@ -204,6 +247,7 @@ def main():
         "config": args.config,
         "encoders": args.encoders,
         "unfreeze_encoder": args.unfreeze_encoder,
+        "eval_only": args.eval_only,
         "overrides": overrides,
         "results": results,
     }

@@ -38,7 +38,7 @@ split:
 training:
   n_train_episodes: 1000 # episodes per epoch
   n_val_episodes: 100
-  n_test_episodes: 600
+  n_test_episodes: 1000
   n_epochs: 100
   eval_interval: 1
   early_stopping_patience: 15
