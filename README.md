@@ -60,10 +60,41 @@ uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml
 
 # Train with a different encoder (CSL or LSA64)
 uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
-  --encoder configs/fewshot/encoders/csl_slgcn.yaml
+  --encoder configs/backbones/csl_slgcn.yaml
 
 uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
-  --encoder configs/fewshot/encoders/lsa64_slgcn.yaml
+  --encoder configs/backbones/lsa64_slgcn.yaml
+```
+
+### Baseline Evaluation (Frozen Encoder)
+
+Evaluate the pretrained encoder's performance on the novel classes without any training.
+
+```bash
+# Evaluate default (AUTSL) frozen encoder baseline
+uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml --eval_only
+
+# Evaluate specific encoder baseline
+uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
+  --encoder configs/backbones/csl_slgcn.yaml --eval_only
+```
+
+### Evaluation with Checkpoints
+
+Evaluate a fine-tuned model by loading a checkpoint from a local file or W&B artifact.
+
+```bash
+# Evaluate with local checkpoint (1000 episodes)
+uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
+  --eval_only \
+  --resume_checkpoint experiments/protonet/best_model.pt \
+  --n_test_episodes 1000
+
+# Evaluate with W&B artifact
+uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
+  --eval_only \
+  --resume_artifact "entity/project/protonet-best:latest" \
+  --n_test_episodes 1000
 ```
 
 ### Fine-tuning the Encoder
@@ -72,6 +103,17 @@ uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
 # Unfreeze encoder and train with lower learning rate
 uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
   --unfreeze_encoder --lr 0.0001
+```
+
+### Training from Scratch (Ablation)
+
+To demonstrate the benefit of transfer learning, you can train the model with a randomly initialized encoder.
+
+```bash
+# Train from scratch (random initialization)
+uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
+  --encoder configs/backbones/random_slgcn.yaml \
+  --unfreeze_encoder --lr 0.001
 ```
 
 ### Custom Few-Shot Settings
@@ -87,8 +129,15 @@ uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
 Compare all three encoders automatically:
 
 ```bash
-# Full comparison
+# Full comparison (training)
 uv run tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.yaml
+
+# Baseline comparison (no training, just evaluation)
+uv run tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.yaml --eval_only
+
+# Comparison with custom few-shot settings
+uv run tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.yaml \
+  --eval_only --n_way 10 --k_shot 5
 
 # Quick test with reduced epochs
 uv run tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.yaml \
@@ -130,27 +179,27 @@ Feature extraction process doesn't need GPU to run, though running with CPU-only
 
 ```
 fsl-bisindo/
+├── artifacts/                # W&B artifacts (checkpoints)
+├── checkpoints/              # Pretrained weights for backbones
 ├── configs/
+│   ├── backbones/            # Encoder-specific configs
+│   ├── data/                 # Data configs
 │   ├── fewshot/              # Few-shot training configs
-│   │   ├── train_protonet.yaml
-│   │   └── encoders/         # Encoder-specific configs
-│   │       ├── autsl_slgcn.yaml
-│   │       ├── csl_slgcn.yaml
-│   │       └── lsa64_slgcn.yaml
-│   ├── backbones/            # Legacy backbone configs
-│   └── data/                 # Data configs
+│   └── splits/               # Dataset splits
+├── data/                     # Datasets and extracted features
+│   ├── AUTSL/
+│   ├── CSL/
+│   ├── LSA64/
+│   ├── WL-BISINDO/
+│   └── features/
+├── experiments/              # Local experiment results
+├── notebooks/                # Data exploration and prototyping
+├── presentation/             # Slidev presentation source
 ├── src/fsl_bisindo/
 │   ├── data/                 # Dataset and samplers
-│   │   ├── wlbisindo_dataset.py
-│   │   └── fsl_sampler.py
 │   ├── engine/               # Training engine
-│   │   └── trainer.py
-│   └── models/               # Model implementations
-│       ├── protonet.py       # ProtoNet with integrated encoder
-│       └── load_pretrained.py
-├── tools/                    # CLI scripts
-│   ├── train_fewshot.py
-│   ├── run_encoder_comparison.py
-│   └── extract_features.py
-└── checkpoints/              # Pretrained weights
+│   ├── models/               # Model implementations
+│   └── utils/                # Utility functions
+├── tools/                    # CLI scripts for data, training, and eval
+└── pyproject.toml            # Project dependencies and metadata
 ```

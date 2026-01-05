@@ -27,6 +27,13 @@ Usage:
     # Evaluate different encoders as baseline:
     python tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
         --encoder configs/backbones/csl_slgcn.yaml --eval_only
+
+    # Evaluate with loaded checkpoint (local or W&B):
+    python tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
+        --eval_only --resume_checkpoint path/to/model.pt --n_test_episodes 1000
+
+    python tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
+        --eval_only --resume_artifact "entity/project/artifact:v0"
 """
 
 from __future__ import annotations
