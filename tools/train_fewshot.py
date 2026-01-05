@@ -112,6 +112,26 @@ def parse_args() -> argparse.Namespace:
         help="Skip training, only evaluate on test set (for frozen encoder baseline)",
     )
 
+    # Checkpoint loading for evaluation
+    p.add_argument(
+        "--resume_artifact",
+        type=str,
+        default=None,
+        help="W&B artifact reference to load checkpoint from (e.g., entity/project/protonet-best:v0)",
+    )
+    p.add_argument(
+        "--resume_checkpoint",
+        type=str,
+        default=None,
+        help="Local checkpoint path to load (e.g., experiments/protonet/best_model.pt)",
+    )
+    p.add_argument(
+        "--n_test_episodes",
+        type=int,
+        default=None,
+        help="Override number of test episodes",
+    )
+
     return p.parse_args()
 
 
@@ -547,6 +567,8 @@ def main():
         cfg["protonet"]["freeze_encoder"] = False
     if args.seed is not None:
         cfg["training"]["seed"] = args.seed
+    if args.n_test_episodes is not None:
+        cfg["training"]["n_test_episodes"] = args.n_test_episodes
 
     if args.device is not None:
         cfg["device"] = args.device
@@ -619,10 +641,34 @@ def main():
         save_dir = Path(save_dir)
         save_dir.mkdir(parents=True, exist_ok=True)
 
-    # Evaluation-only mode (for frozen encoder baseline)
+    # Evaluation-only mode (for frozen encoder baseline or loaded checkpoint)
     if args.eval_only:
         print("\n" + "=" * 60)
-        print("Evaluation-only mode (frozen encoder baseline)")
+
+        # Load checkpoint if specified
+        checkpoint_path = None
+        if args.resume_artifact:
+            print(f"Loading checkpoint from W&B artifact: {args.resume_artifact}")
+            import wandb
+
+            api = wandb.Api()
+            artifact = api.artifact(args.resume_artifact, type="model")
+            artifact_dir = artifact.download()
+            checkpoint_path = Path(artifact_dir) / "best_model.pt"
+            print(f"  Downloaded to: {checkpoint_path}")
+        elif args.resume_checkpoint:
+            checkpoint_path = Path(args.resume_checkpoint)
+            print(f"Loading checkpoint from local path: {checkpoint_path}")
+
+        if checkpoint_path:
+            if not checkpoint_path.exists():
+                raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
+            model.load_state_dict(torch.load(checkpoint_path, map_location=device))
+            print("  Checkpoint loaded successfully!")
+            print("Evaluation-only mode (with loaded checkpoint)")
+        else:
+            print("Evaluation-only mode (frozen encoder baseline)")
+
         print("Skipping training, directly evaluating on test set...")
         print("=" * 60)
 

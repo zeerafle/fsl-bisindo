@@ -22,3 +22,4 @@ wandb
 experiments
 
 *.tar.gz
+artifacts/*
