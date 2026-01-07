@@ -56,10 +56,10 @@ data:
   test_pipeline:
     dataset:
       _target_: openhands.datasets.isolated.AUTSLDataset
-      split_file: ./data/AUTSL/AUTSL/test_labels.csv
-      root_dir: ./data/AUTSL/poses_pickle/test_poses/new_test_poses
+      split_file: /teamspace/studios/this_studio/fsl-bisindo/data/AUTSL/AUTSL/test_labels.csv
+      root_dir: /teamspace/studios/this_studio/fsl-bisindo/data/AUTSL/poses_pickle/test_poses/new_test_poses
       modality: pose
-      class_mappings_file_path: ./data/AUTSL/AUTSL/SignList_ClassId_TR_EN.csv
+      class_mappings_file_path: /teamspace/studios/this_studio/fsl-bisindo/data/AUTSL/AUTSL/SignList_ClassId_TR_EN.csv
       only_metadata: true
     transforms:
       - PoseSelect:
