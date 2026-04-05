@@ -26,13 +26,13 @@ fewshot:
 # Data configuration
 data:
   keypoints_root: data/WL-BISINDO/keypoints
-  window_size: 204 # temporal window for padding/truncation
+  window_size: 100 # temporal window for padding/truncation
 
 # Split configuration - which classes for train/val/test
 split:
-  base_classes: [27, 31, 17, 8, 24, 25, 2, 26, 28, 0, 23, 29, 30, 14, 15, 7]
-  val_classes: [19, 20, 6, 4, 10, 1]
-  test_classes: [21, 22, 11, 13, 3, 12, 9, 18, 5, 16]
+  base_classes: [29, 15, 24, 17, 8, 9, 30, 25, 12, 0, 4, 16, 5, 13, 11, 23]
+  val_classes: [1, 2, 26, 3, 21, 27]
+  test_classes: [22, 18, 31, 20, 7, 10, 14, 28, 19, 6]
 
 # Training configuration
 training:
