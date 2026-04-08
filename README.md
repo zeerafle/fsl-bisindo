@@ -19,9 +19,9 @@ Few-shot learning implementation for sign language recognition on WL-BISINDO dat
 
 3. Create a `.env` by copying the `.env.example`:
 
-    ```bash
-    cp .env.example .env
-    ```
+   ```bash
+   cp .env.example .env
+   ```
 
 4. Set the `WLBISINDO_DATA_PATH` variable in the `.env` file to point to your WL-BISINDO dataset directory. Optionally, set your Weights & Biases API key in the `.env` file for experiment tracking.
 
@@ -79,24 +79,6 @@ uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
   --encoder configs/backbones/csl_slgcn.yaml --eval_only
 ```
 
-### Evaluation with Checkpoints
-
-Evaluate a fine-tuned model by loading a checkpoint from a local file or W&B artifact.
-
-```bash
-# Evaluate with local checkpoint (1000 episodes)
-uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
-  --eval_only \
-  --resume_checkpoint experiments/protonet/best_model.pt \
-  --n_test_episodes 1000
-
-# Evaluate with W&B artifact
-uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
-  --eval_only \
-  --resume_artifact "entity/project/protonet-best:latest" \
-  --n_test_episodes 1000
-```
-
 ### Fine-tuning the Encoder
 
 ```bash
@@ -108,6 +90,8 @@ uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
 ### Training from Scratch (Ablation)
 
 To demonstrate the benefit of transfer learning, you can train the model with a randomly initialized encoder.
+
+Before running the script, modify the absolute path of `data.test_pipeline.dataset.split_file`, `data.test_pipeline.dataset.root_dir`, and `data.test_pipeline.dataset.class_mappings_file_path` according to your machine in the `configs/backbones/random_slgcn.yaml` file. It's nothing important, its just so that the pipeline runs correctly. Run the script below to train with random initialization:
 
 ```bash
 # Train from scratch (random initialization)
@@ -146,6 +130,24 @@ uv run tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.y
 # Fine-tune all encoders
 uv run tools/run_encoder_comparison.py --config configs/fewshot/train_protonet.yaml \
   --unfreeze_encoder --lr 0.0001
+```
+
+### Evaluation with Checkpoints
+
+Evaluate a fine-tuned model by loading a checkpoint from a local file or W&B artifact.
+
+```bash
+# Evaluate with local checkpoint (1000 episodes)
+uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
+  --eval_only \
+  --resume_checkpoint experiments/protonet/best_model.pt \
+  --n_test_episodes 1000
+
+# Evaluate with W&B artifact
+uv run tools/train_fewshot.py --config configs/fewshot/train_protonet.yaml \
+  --eval_only \
+  --resume_artifact "entity/project/protonet-best:latest" \
+  --n_test_episodes 1000
 ```
 
 ### Configuration

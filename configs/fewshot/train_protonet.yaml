@@ -66,7 +66,7 @@ checkpoint:
 # Weights & Biases logging
 wandb:
   project: wl-bisindo-fsl
-  entity: null # your wandb entity
+  entity: zeerafle-sivas-cumhuriyet-university # adjust according to your W&B account
   group: protonet
   job_type: train
   tags: ["protonet", "fewshot", "bisindo"]
